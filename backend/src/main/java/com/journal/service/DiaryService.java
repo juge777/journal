@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +25,18 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
 
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Long) {
+            return (Long) authentication.getPrincipal();
+        }
+        throw new RuntimeException("未登录或登录已过期");
+    }
+
     public DiaryResponse create(DiaryRequest request) {
+        Long userId = getCurrentUserId();
         Diary diary = new Diary();
+        diary.setUserId(userId);
         diary.setTitle(request.getTitle());
         diary.setContent(request.getContent());
         diary.setMood(request.getMood());
@@ -35,8 +47,14 @@ public class DiaryService {
     }
 
     public DiaryResponse update(Long id, DiaryRequest request) {
+        Long userId = getCurrentUserId();
         Diary diary = diaryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Diary not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("日记不存在"));
+
+        if (!diary.getUserId().equals(userId)) {
+            throw new RuntimeException("无权修改此日记");
+        }
+
         diary.setTitle(request.getTitle());
         diary.setContent(request.getContent());
         diary.setMood(request.getMood());
@@ -49,36 +67,50 @@ public class DiaryService {
     }
 
     public void delete(Long id) {
-        if (!diaryRepository.existsById(id)) {
-            throw new RuntimeException("Diary not found with id: " + id);
+        Long userId = getCurrentUserId();
+        Diary diary = diaryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("日记不存在"));
+
+        if (!diary.getUserId().equals(userId)) {
+            throw new RuntimeException("无权删除此日记");
         }
+
         diaryRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     public DiaryResponse getById(Long id) {
+        Long userId = getCurrentUserId();
         Diary diary = diaryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Diary not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("日记不存在"));
+
+        if (!diary.getUserId().equals(userId)) {
+            throw new RuntimeException("无权查看此日记");
+        }
+
         return toResponse(diary);
     }
 
     @Transactional(readOnly = true)
     public Page<DiaryResponse> getList(int page, int size) {
+        Long userId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "diaryDate", "createdAt"));
-        return diaryRepository.findAllByOrderByDiaryDateDescCreatedAtDesc(pageable)
+        return diaryRepository.findByUserIdOrderByDiaryDateDescCreatedAtDesc(userId, pageable)
                 .map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Page<DiaryResponse> search(String keyword, int page, int size) {
+        Long userId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "diaryDate", "createdAt"));
-        return diaryRepository.searchByKeyword(keyword, pageable)
+        return diaryRepository.searchByKeywordAndUserId(keyword, userId, pageable)
                 .map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<DiaryResponse> exportAll() {
-        return diaryRepository.findAllByOrderByDiaryDateDescCreatedAtDesc().stream()
+        Long userId = getCurrentUserId();
+        return diaryRepository.findByUserIdOrderByDiaryDateDescCreatedAtDesc(userId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

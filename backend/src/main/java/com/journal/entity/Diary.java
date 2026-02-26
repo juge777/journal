@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "diary", indexes = {
-    @Index(name = "idx_created_at", columnList = "created_at")
+    @Index(name = "idx_created_at", columnList = "created_at"),
+    @Index(name = "idx_user_id", columnList = "user_id")
 })
 @Data
 @NoArgsConstructor
@@ -37,6 +38,9 @@ public class Diary {
 
     @Column(name = "diary_date")
     private LocalDate diaryDate;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

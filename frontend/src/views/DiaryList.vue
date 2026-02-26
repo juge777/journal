@@ -2,10 +2,12 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDiaryStore } from '@/stores/diary'
+import { useAuthStore } from '@/stores/auth'
 import DiaryCard from '@/components/DiaryCard.vue'
 
 const router = useRouter()
 const diaryStore = useDiaryStore()
+const authStore = useAuthStore()
 
 const searchKeyword = ref('')
 const isSearching = ref(false)
@@ -46,6 +48,14 @@ const handleExport = async () => {
     await diaryStore.exportDiaries()
   } catch (e) {
     console.error('Export failed:', e)
+  }
+}
+
+// 退出登录
+const handleLogout = () => {
+  if (confirm('确定要退出登录吗？')) {
+    authStore.logout()
+    router.push('/login')
   }
 }
 
@@ -110,6 +120,13 @@ onMounted(() => {
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <button class="icon-btn" @click="handleLogout" title="退出登录">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
           </button>
         </div>

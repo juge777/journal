@@ -13,10 +13,12 @@ import java.util.List;
 @Repository
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
-    Page<Diary> findAllByOrderByDiaryDateDescCreatedAtDesc(Pageable pageable);
+    Page<Diary> findByUserIdOrderByDiaryDateDescCreatedAtDesc(Long userId, Pageable pageable);
 
-    @Query("SELECT d FROM Diary d WHERE d.title LIKE %:keyword% OR d.content LIKE %:keyword% ORDER BY d.diaryDate DESC, d.createdAt DESC")
-    Page<Diary> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    @Query("SELECT d FROM Diary d WHERE d.userId = :userId AND (d.title LIKE %:keyword% OR d.content LIKE %:keyword%) ORDER BY d.diaryDate DESC, d.createdAt DESC")
+    Page<Diary> searchByKeywordAndUserId(@Param("keyword") String keyword, @Param("userId") Long userId, Pageable pageable);
 
-    List<Diary> findAllByOrderByDiaryDateDescCreatedAtDesc();
+    List<Diary> findByUserIdOrderByDiaryDateDescCreatedAtDesc(Long userId);
+
+    boolean existsByIdAndUserId(Long id, Long userId);
 }
