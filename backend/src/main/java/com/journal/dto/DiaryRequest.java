@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class DiaryRequest {
 
@@ -18,4 +20,6 @@ public class DiaryRequest {
 
     @Size(max = 50, message = "Weather must not exceed 50 characters")
     private String weather;
+
+    private LocalDate diaryDate;
 }

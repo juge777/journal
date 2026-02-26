@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,6 +34,9 @@ public class Diary {
 
     @Column(length = 50)
     private String weather;
+
+    @Column(name = "diary_date")
+    private LocalDate diaryDate;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

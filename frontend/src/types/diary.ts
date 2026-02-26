@@ -4,6 +4,7 @@ export interface Diary {
   content: string
   mood: string | null
   weather: string | null
+  diaryDate: string
   createdAt: string
   updatedAt: string
 }
@@ -13,6 +14,7 @@ export interface DiaryRequest {
   content: string
   mood?: string
   weather?: string
+  diaryDate?: string
 }
 
 export interface DiaryListResponse {

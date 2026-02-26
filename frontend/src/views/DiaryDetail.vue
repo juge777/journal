@@ -19,14 +19,14 @@ const deleting = ref(false)
 const diary = computed(() => diaryStore.currentDiary)
 
 // 格式化日期
-const formattedDate = computed(() => {
+const formattedDiaryDate = computed(() => {
   if (!diary.value) return ''
-  return dayjs(diary.value.createdAt).format('YYYY年MM月DD日 dddd')
+  return dayjs(diary.value.diaryDate).format('YYYY年MM月DD日 dddd')
 })
 
-const formattedTime = computed(() => {
+const formattedCreatedTime = computed(() => {
   if (!diary.value) return ''
-  return dayjs(diary.value.createdAt).format('HH:mm')
+  return dayjs(diary.value.createdAt).format('YYYY-MM-DD HH:mm')
 })
 
 // 心情映射
@@ -124,8 +124,8 @@ onMounted(async () => {
       <!-- 元信息 -->
       <div class="meta">
         <div class="date-info">
-          <div class="date">{{ formattedDate }}</div>
-          <div class="time">{{ formattedTime }}</div>
+          <div class="date">{{ formattedDiaryDate }}</div>
+          <div class="time">创建于 {{ formattedCreatedTime }}</div>
         </div>
         <div class="tags" v-if="moodEmoji || weatherEmoji">
           <span class="tag" v-if="moodEmoji">{{ moodEmoji }}</span>

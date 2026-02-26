@@ -72,6 +72,7 @@ public class DiaryController {
 
         StringBuilder json = new StringBuilder("[\n");
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         for (int i = 0; i < diaries.size(); i++) {
             DiaryResponse d = diaries.get(i);
@@ -81,6 +82,7 @@ public class DiaryController {
             json.append("    \"content\": ").append(escapeJson(d.getContent())).append(",\n");
             json.append("    \"mood\": ").append(escapeJson(d.getMood())).append(",\n");
             json.append("    \"weather\": ").append(escapeJson(d.getWeather())).append(",\n");
+            json.append("    \"diaryDate\": \"").append(d.getDiaryDate().format(dateFormatter)).append("\",\n");
             json.append("    \"createdAt\": \"").append(d.getCreatedAt().format(formatter)).append("\",\n");
             json.append("    \"updatedAt\": \"").append(d.getUpdatedAt().format(formatter)).append("\"\n");
             json.append("  }");

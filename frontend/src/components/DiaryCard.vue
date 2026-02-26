@@ -39,8 +39,8 @@ const moodEmoji = props.diary.mood ? (moodEmojiMap[props.diary.mood] || props.di
 const weatherEmoji = props.diary.weather ? (weatherEmojiMap[props.diary.weather] || props.diary.weather) : ''
 
 // 格式化日期
-const formattedDate = dayjs(props.diary.createdAt).format('MM月DD日 dddd')
-const formattedTime = dayjs(props.diary.createdAt).format('HH:mm')
+const formattedDiaryDate = dayjs(props.diary.diaryDate).format('YYYY年MM月DD日 dddd')
+const formattedCreatedTime = dayjs(props.diary.createdAt).format('YYYY-MM-DD HH:mm')
 
 // 内容预览
 const contentPreview = props.diary.content.length > 100
@@ -52,8 +52,8 @@ const contentPreview = props.diary.content.length > 100
   <div class="diary-card" @click="emit('click')">
     <div class="card-header">
       <div class="date-info">
-        <span class="date">{{ formattedDate }}</span>
-        <span class="time">{{ formattedTime }}</span>
+        <span class="date">{{ formattedDiaryDate }}</span>
+        <span class="time">创建于 {{ formattedCreatedTime }}</span>
       </div>
       <div class="tags" v-if="moodEmoji || weatherEmoji">
         <span class="tag" v-if="moodEmoji">{{ moodEmoji }}</span>

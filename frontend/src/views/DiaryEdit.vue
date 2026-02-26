@@ -3,6 +3,10 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDiaryStore } from '@/stores/diary'
 import type { DiaryRequest } from '@/types/diary'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+
+dayjs.locale('zh-cn')
 
 const router = useRouter()
 const route = useRoute()
@@ -15,6 +19,7 @@ const title = ref('')
 const content = ref('')
 const mood = ref('')
 const weather = ref('')
+const diaryDate = ref(new Date().toISOString().split('T')[0])
 const saving = ref(false)
 
 // 心情选项
@@ -48,6 +53,7 @@ const loadDiary = async () => {
       content.value = diary.content
       mood.value = diary.mood || ''
       weather.value = diary.weather || ''
+      diaryDate.value = diary.diaryDate || new Date().toISOString().split('T')[0]
     } catch (e) {
       console.error('Load diary failed:', e)
       router.back()
@@ -68,7 +74,8 @@ const save = async () => {
       title: title.value.trim() || null,
       content: content.value.trim(),
       mood: mood.value || null,
-      weather: weather.value || null
+      weather: weather.value || null,
+      diaryDate: diaryDate.value
     }
 
     if (isEdit.value && diaryId.value) {
@@ -104,6 +111,11 @@ const currentWeatherEmoji = computed(() => {
   return option?.emoji || ''
 })
 
+// 格式化预览日期
+const previewDate = computed(() => {
+  return dayjs(diaryDate.value).format('YYYY年MM月DD日 dddd')
+})
+
 onMounted(() => {
   if (isEdit.value) {
     loadDiary()
@@ -128,6 +140,16 @@ onMounted(() => {
 
     <!-- 编辑表单 -->
     <div class="form">
+      <!-- 日期选择 -->
+      <div class="form-group">
+        <label class="label">日记日期</label>
+        <input
+          v-model="diaryDate"
+          type="date"
+          class="input date-input"
+        />
+      </div>
+
       <!-- 标题 -->
       <div class="form-group">
         <input
@@ -189,7 +211,7 @@ onMounted(() => {
         <div class="preview-header">预览</div>
         <div class="preview-card">
           <div class="preview-meta">
-            <span class="preview-date">{{ new Date().toLocaleDateString('zh-CN') }}</span>
+            <span class="preview-date">{{ previewDate }}</span>
             <span class="preview-tags" v-if="currentMoodEmoji || currentWeatherEmoji">
               {{ currentMoodEmoji }} {{ currentWeatherEmoji }}
             </span>

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ public class DiaryService {
         diary.setContent(request.getContent());
         diary.setMood(request.getMood());
         diary.setWeather(request.getWeather());
+        diary.setDiaryDate(request.getDiaryDate() != null ? request.getDiaryDate() : LocalDate.now());
         diary = diaryRepository.save(diary);
         return toResponse(diary);
     }
@@ -39,6 +41,9 @@ public class DiaryService {
         diary.setContent(request.getContent());
         diary.setMood(request.getMood());
         diary.setWeather(request.getWeather());
+        if (request.getDiaryDate() != null) {
+            diary.setDiaryDate(request.getDiaryDate());
+        }
         diary = diaryRepository.save(diary);
         return toResponse(diary);
     }
@@ -59,21 +64,21 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public Page<DiaryResponse> getList(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return diaryRepository.findAllByOrderByCreatedAtDesc(pageable)
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "diaryDate", "createdAt"));
+        return diaryRepository.findAllByOrderByDiaryDateDescCreatedAtDesc(pageable)
                 .map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Page<DiaryResponse> search(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "diaryDate", "createdAt"));
         return diaryRepository.searchByKeyword(keyword, pageable)
                 .map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<DiaryResponse> exportAll() {
-        return diaryRepository.findAllByOrderByCreatedAtDesc().stream()
+        return diaryRepository.findAllByOrderByDiaryDateDescCreatedAtDesc().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -85,6 +90,7 @@ public class DiaryService {
                 diary.getContent(),
                 diary.getMood(),
                 diary.getWeather(),
+                diary.getDiaryDate(),
                 diary.getCreatedAt(),
                 diary.getUpdatedAt()
         );
