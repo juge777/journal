@@ -10,11 +10,11 @@ export interface Diary {
 }
 
 export interface DiaryRequest {
-  title?: string
+  title?: string | null
   content: string
-  mood?: string
-  weather?: string
-  diaryDate?: string
+  mood?: string | null
+  weather?: string | null
+  diaryDate?: string | null
 }
 
 export interface DiaryListResponse {
